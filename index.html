@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resmî Yazışmalar Uzmanlık Sınavı</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #0ea5e9;
+            --primary-hover: #0284c7;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --correct-bg: #dcfce7;
+            --wrong-bg: #fee2e2;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: '-apple-system', 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding: 2rem 1rem; }
+        .container { max-width: 850px; margin: 0 auto; }
+        
+        .header { text-align: center; margin-bottom: 2rem; background: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
+        .header h1 { font-size: 1.75rem; color: var(--primary); margin-bottom: 0.5rem; }
+        
+        .quiz-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .question-text { font-weight: 600; font-size: 1.1rem; margin-bottom: 1rem; }
+        .scenario-text { margin-bottom: 1rem; padding-left: 0.5rem; font-style: italic; color: #334155; border-left: 3px solid var(--primary); }
+        
+        .options { display: flex; flex-direction: column; gap: 0.5rem; }
+        .option-label { display: flex; align-items: flex-start; padding: 0.75rem 1rem; background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .option-label:hover { background-color: #e0f2fe; border-color: var(--primary); }
+        .option-label input { margin-right: 10px; margin-top: 5px; transform: scale(1.2); }
+        
+        .btn-submit { display: block; width: 100%; background-color: var(--primary); color: white; border: none; padding: 1.25rem; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 2rem; transition: 0.2s; }
+        .btn-submit:hover { background-color: var(--primary-hover); }
+
+        #results-section { display: none; margin-top: 3rem; }
+        .result-header { text-align: center; font-size: 1.5rem; color: var(--primary); margin-bottom: 1.5rem; font-weight: bold; }
+        .explanation-card { background: var(--card-bg); border-left: 4px solid var(--primary); padding: 1.5rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .explanation-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: #1e293b; }
+        .explanation-card p { color: #475569; font-size: 0.95rem; }
+        .status-correct { color: #16a34a; font-weight: bold; }
+        .status-wrong { color: #dc2626; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Resmî Yazışmalar - Analitik Uzmanlık Sınavı</h1>
+            <p>Mevzuat yorumlama, nicel kısıtlamalar ve senaryo bazlı analiz.</p>
+        </div>
+
+        <div id="quiz-form"></div>
+
+        <button class="btn-submit" onclick="finishExam()">Sınavı Bitir ve Çözümleri Gör</button>
+
+        <div id="results-section">
+            <div class="result-header" id="score-display"></div>
+            <h2 style="margin-bottom: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">Cevap Anahtarı ve Çözüm Açıklamaları</h2>
+            <div id="explanations-container"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "Bir PTT Başmüdürlüğü tarafından elektronik ortamda hazırlanan belgenin nicel şekil şartları incelenmiştir. Buna göre aşağıdaki eşleştirmelerden hangisi mevzuata KESİNLİKLE aykırıdır?",
+                o: [
+                    "A) Sayfa kenar boşlukları: Her yönden en az 2,5 cm",
+                    "B) Paragraf başı girintisi: Sola dayalı kenardan 1,25 cm içeride",
+                    "C) Tercih edilen yazı tipi ve boyutu: Calibri, 12 punto",
+                    "D) Metin içindeki satır aralığı: Tek satır aralığı"
+                ],
+                a: 2,
+                exp: "Yönetmeliğe göre resmi yazışmalarda öncelikle tercih edilmesi gereken yazı tipi 'Times New Roman' (12 punto) veya 'Arial' (11 punto) olmalıdır. Calibri, zorunlu hallerde (örneğin rapor ve formlarda) kullanılabilir ancak standart resmi yazıda ilk tercih değildir ve 12 punto ile kullanımı belirtilmemiştir."
+            },
+            {
+                q: "I. Metnin bitiminden itibaren en az 2, en fazla 4 satır boşluk bırakılır.<br>II. İmza atan yetkilinin adı küçük, soyadı tamamen büyük harflerle yazılır.<br>III. Unvanlar, ad ve soyadın hemen bir alt satırına yazılır.<br><br>Resmî bir yazıda 'İmza' alanının oluşturulmasıyla ilgili yukarıda verilen nicel ve biçimsel kurallardan hangileri doğrudur?",
+                o: [
+                    "A) Yalnız I",
+                    "B) I ve II",
+                    "C) II ve III",
+                    "D) I, II ve III"
+                ],
+                a: 3,
+                exp: "Öncüllerin tamamı doğrudur. İmza bloku metinden 2 ila 4 satır aralığı aşağıya açılır. İlk harfi büyük diğerleri küçük ad, tamamen büyük soyad kuralı geçerlidir ve unvan hemen alta eklenir."
+            },
+            {
+                q: "Üç farklı makamın hiyerarşik veya eş düzey yetkilerle bir evrakı fiziksel olarak müştereken (birlikte) imzalaması gerekmiştir. Buna göre imza bloklarının sayfadaki yerleşimi (soldan sağa doğru) hangi mantığa göre dizilmelidir?",
+                o: [
+                    "A) En alt makam solda, ortanca makam ortada, en üst makam sağda",
+                    "B) En üst makam ortada, ikinci makam sağda, üçüncü (en alt) makam solda",
+                    "C) Hiyerarşi gözetilmeksizin isimler alfabetik sıraya göre dizilir",
+                    "D) En üst makam solda, diğerleri hiyerarşik sırayla sağa doğru dizilir"
+                ],
+                a: 1,
+                exp: "Üç yetkilinin imzaladığı belgelerde en üst makamın imza bloku sayfanın ortasında, ikinci makamın imza bloku sağda, üçüncü makamın imza bloku ise solda yer alır."
+            },
+            {
+                q: "Bir yazının birden fazla belgeye veya önceki yazışmalara atıf yaptığı 'İlgi' bölümü oluşturulurken aşağıdaki eylemlerden hangisi YAPILAMAZ?",
+                o: [
+                    "A) İlgide yer alan belgeler (a), (b), (c) şeklinde harflerle sıralanır.",
+                    "B) Tarihi en eski olan evrak en üstte (a) maddesi olarak yer alır.",
+                    "C) İlgide belirtilen evrakın sadece sayı numarası yazılır, tarihinin yazılmasına gerek yoktur.",
+                    "D) İlgi ibaresi 'Konu' bölümünün son satırından itibaren iki satır boşluk bırakılarak yazılır."
+                ],
+                a: 2,
+                exp: "İlgi bölümünde bir belgeye atıf yapılırken o belgenin mutlaka hem TARİHİ hem de SAYISI birlikte belirtilmek zorundadır. Sadece sayı yazılarak atıf yapılamaz."
+            },
+            {
+                q: "Aşağıdaki senaryolardan hangisi, belgenin alt kısmında yer alan 'Dağıtım' listesinin 'Gereği' ve 'Bilgi' olarak ikiye ayrılmasının temel sebebini en doğru şekilde açıklar?",
+                o: [
+                    "A) Belgenin fiziksel mi yoksa elektronik ortamda mı gönderileceğini kargo birimine bildirmek.",
+                    "B) Evrakı teslim alan kurumların idari bir eylem/işlem yapmakla yükümlü olup olmadıklarını netleştirmek.",
+                    "C) Belgenin gizlilik derecesinin hangi kurumlarda kalkacağını belirlemek.",
+                    "D) EBYS üzerinde evrakı arşivleyecek sunucu kapasitesini ayarlamak."
+                ],
+                a: 1,
+                exp: "Dağıtım kısmında 'Gereği' ibaresi altındaki kurumlar yazının içeriğiyle ilgili idari bir iş ve işlem tesis etmek zorundadır. 'Bilgi' altındaki kurumlar ise işlemi yapmaz, konudan haberdar olmak amacıyla belgeyi dosyasına/arşivine kaldırır."
+            },
+            {
+                q: "Elektronik ortamda güvenli e-imza ile oluşturulmuş ve gönderilmiş bir belgenin, elektrik kesintisi vb. zorunlu idari veya adli sebeplerle kâğıt çıktısının alınarak onaylanması gerekmiştir. <br><br>Bu senaryoya göre aşağıdakilerden hangisi fiziksel çıktının geçerli sayılması için yerine getirilmesi KESİNLİKLE gereken bir işlem değildir?",
+                o: [
+                    "A) İdarece yetkilendirilmiş personelin ad, soyad ve unvanını yazması",
+                    "B) Belgenin üzerine uygun bir yere 'Aslı Gibidir' ibaresinin yazılması veya kaşesinin basılması",
+                    "C) Yetkili personelin işlemi yaptığı tarihi yazarak ıslak imza atması",
+                    "D) Asıl belgeyi e-imza ile imzalayan makamın fiziksel çıktıyı da bizzat paraflaması"
+                ],
+                a: 3,
+                exp: "Elektronik belgenin fiziksel çıktısının aslına uygunluğu, belgeyi üreten makam (müdür vb.) tarafından değil, idarece bu iş için özel olarak yetkilendirilmiş personel (memur, şef vb.) tarafından 'Aslı Gibidir' yapılarak onaylanır."
+            },
+            {
+                q: "İdare dışı bir muhataba (Örneğin Ahmet Yılmaz isimli bir vatandaşa veya X Ticaret A.Ş. isimli bir özel şirkete) yazılan resmi yazılarda adres bilgisinin konumu ile ilgili en doğru kural aşağıdakilerden hangisidir?",
+                o: [
+                    "A) Adres kesinlikle belge üzerine yazılmaz, sadece gönderilecek zarfın üzerine yazılır.",
+                    "B) Adres, muhatap isminin bir alt satırına veya muhatabın yanına parantez içinde yazılır.",
+                    "C) Adres, belgenin en altındaki iletişim bilgileri (footer) alanına eklenir.",
+                    "D) Adres, 'İlgi' bölümünden hemen sonra sola dayalı olarak yazılır."
+                ],
+                a: 1,
+                exp: "Muhatap bir İDARE ise (örn: Ulaştırma Bakanlığı), adres metne yazılmaz sadece zarfa yazılır. Ancak muhatap idare dışıysa (gerçek veya tüzel özel kişi), adres muhatap satırının hemen altına veya parantez içinde belgenin üzerine yazılır."
+            },
+            {
+                q: "Bir evrak, PTT'nin kendi iç hiyerarşisinde onay makamına (Örn: Genel Müdürlük Makamına) sunulacaktır. Onay (Olur) kısmının biçimsel özellikleri dikkate alındığında hangisi yanlıştır?",
+                o: [
+                    "A) Teklif eden makamın imza bloku normal yerinde (sağda) yer alır.",
+                    "B) Onay makamı, teklif eden makamın altında ortalanarak yer alır.",
+                    "C) 'OLUR' ibaresi küçük harflerle ve ortalanarak yazılır.",
+                    "D) Onay makamının ad, soyad ve unvanı 'OLUR' ibaresinin altına yazılır."
+                ],
+                a: 2,
+                exp: "Onay işlemi gerektiren yazılarda 'OLUR' ibaresi tamamı büyük harflerle (OLUR) yazılır. Küçük harflerle yazılamaz."
+            },
+            {
+                q: "I. Üst makamlara yazılan yazılar 'Arz ederim.' ile biter.<br>II. Aynı düzeydeki (eş) makamlara yazılan yazılar 'Rica ederim.' ile biter.<br>III. Alt makamlara yazılan yazılar 'Rica ederim.' ile biter.<br><br>Metnin bitiriliş ifadeleriyle ilgili yukarıdaki kurallardan hangileri doğrudur?",
+                o: [
+                    "A) Yalnız I",
+                    "B) I ve II",
+                    "C) I ve III",
+                    "D) I, II ve III"
+                ],
+                a: 2,
+                exp: "Eş düzey makamlara (aynı hiyerarşik seviyedeki kurumlara) yazılan yazılar DAİMA 'Arz ederim' ile bitirilir. Sadece alt makamlara 'Rica ederim' yazılır. Bu nedenle II. öncül yanlıştır."
+            },
+            {
+                q: "Süreli evraklarla ilgili uygulanan nicel işaretlemeler baz alındığında; süreli bir yazının 'GÜNLÜDÜR' veya 'ACELE' olduğu evrakın neresinde, nasıl bir biçimle belirtilir?",
+                o: [
+                    "A) Belgenin sağ üst köşesinde, kırmızı renkli damga veya yazıyla",
+                    "B) Konu satırının hemen başında, parantez içinde kalın harflerle",
+                    "C) Muhatap isminin hemen altında siyah büyük harflerle",
+                    "D) İmza blokunun hemen üstünde sola dayalı olarak"
+                ],
+                a: 0,
+                exp: "Süreli yazılarda belgenin sağ üst köşesine kırmızı renkli olarak 'ACELE' veya 'GÜNLÜDÜR' ibaresi yerleştirilir."
+            },
+            {
+                q: "Bir yazının 'Ek' listesi oldukça kabarıktır. Aşağıda eklerin numaralandırılması ve gösterilmesiyle ilgili uygulanan yöntemlerden hangisi mevzuatın mantığına uymaz?",
+                o: [
+                    "A) Ekler metnin bitiminden sonra sola dayalı olarak yazılır.",
+                    "B) Birden fazla ek varsa 1., 2., 3. şeklinde numaralandırılır.",
+                    "C) Ekin sayfa sayısı biliniyorsa parantez içinde örneğin (5 Sayfa) şeklinde belirtilir.",
+                    "D) Ek numaralarının ardına iki nokta üst üste konarak (Örn: 1: Rapor) listelenir."
+                ],
+                a: 3,
+                exp: "Ek numaraları sıralanırken numaradan sonra nokta konulur veya numaralandırma rakamla yapılır. '1:' şeklinde iki nokta üst üste kullanımı şekil kuralına uymaz."
+            },
+            {
+                q: "Bir PTT Daire Başkanlığında hazırlanan evrakta, belgeyi tasarlayan memurdan başlayarak sırasıyla şef ve şube müdürünün de incelediğini gösteren 'Paraf' bloku ile ilgili hangisi KESİNLİKLE doğrudur?",
+                o: [
+                    "A) Belgenin kurum dışına gidecek olan asıl nüshasında da mutlaka yer alır.",
+                    "B) Sadece idarede kalan (arşivlenen) fiziksel/elektronik nüshada bulunur.",
+                    "C) İmza blokunun hemen yanına, sağ tarafa konumlandırılır.",
+                    "D) En alt hiyerarşideki kişinin parafı en üstte, amirin parafı en altta yer alır."
+                ],
+                a: 1,
+                exp: "Paraf, sadece yazıyı üreten kurumun kendi içinde kalan nüshasında bulunur. Giden evrakta (muhataba ulaşan kopyada) asla paraf bloku yer almaz."
+            },
+            {
+                q: "İdare tarafından Elektronik Belge Yönetim Sistemi (EBYS) üzerinden yanlışlıkla bir evrak oluşturulmuş ve evrak kayıt numarası (Sayı) almıştır. Ancak daha sonra evrakın gönderilmesinden vazgeçilmiş ve iptal edilmiştir. İptal edilen bu 'Sayı'ya ne işlem uygulanır?",
+                o: [
+                    "A) Bir sonraki gün oluşturulacak ilk evraka tahsis edilir.",
+                    "B) Kurum içi haberleşmede gayriresmi işlemlerde kullanılır.",
+                    "C) İptal kaydıyla sistemde muhafaza edilir ve başka hiçbir belgeye tahsis edilemez.",
+                    "D) Sistem yöneticisi tarafından veri tabanından tamamen silinir."
+                ],
+                a: 2,
+                exp: "Alınan evrak kayıt numaraları resmi bir zincir oluşturur. İptal edilen bir belgenin numarası başka bir evraka verilemez, gerekçesiyle birlikte sistemde 'iptal' olarak arşivde bekler."
+            },
+            {
+                q: "Aşağıdaki gizlilik derecelerinden hangisi resmi yazışma yönetmeliğinde tanımlanan derecelerden biri DEĞİLDİR?",
+                o: [
+                    "A) Çok Gizli",
+                    "B) Gizli",
+                    "C) Özel Gizlilikli",
+                    "D) Hizmete Özel"
+                ],
+                a: 2,
+                exp: "Yönetmelikte gizlilik dereceleri; Çok Gizli, Gizli, Özel, ve Hizmete Özel olarak belirlenmiştir. 'Özel Gizlilikli' diye bir derece tanımlanmamıştır."
+            },
+            {
+                q: "Çok Gizli dereceli belgelerin fiziksel ortamda muhatabına ulaştırılması süreciyle ilgili aşağıdaki güvenlik kurallarından hangisi esastır?",
+                o: [
+                    "A) PTT'nin standart taahhütlü posta hizmetiyle gönderilir.",
+                    "B) Faks veya genel e-posta yoluyla önden bir kopyası atılır.",
+                    "C) İç içe konulmuş çift zarf yöntemiyle ve yetkili kurye personeli aracılığıyla gönderilir.",
+                    "D) Dış zarfın üzerine kırmızı kalemle 'Çok Gizli' yazılması zorunludur."
+                ],
+                a: 2,
+                exp: "Çok Gizli dereceli evraklar, izinsiz erişimi engellemek için her zaman çift zarf yöntemiyle paketlenir. Dış zarfın üzerinde gizlilik derecesi KESİNLİKLE belirtilmez (dikkat çekmemesi için). Bu nedenle özel kurye veya görevli ile gönderilir."
+            }
+        ];
+
+        function renderQuiz() {
+            const form = document.getElementById('quiz-form');
+            questions.forEach((q, i) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = 'quiz-card';
+                qDiv.innerHTML = `
+                    <div class="question-text">${i + 1}. ${q.q}</div>
+                    <div class="options">
+                        ${q.o.map((opt, j) => `
+                            <label class="option-label" id="lbl-q${i}-o${j}">
+                                <input type="radio" name="q${i}" value="${j}">
+                                <span>${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                form.appendChild(qDiv);
+            });
+        }
+
+        function finishExam() {
+            let score = 0;
+            const expContainer = document.getElementById('explanations-container');
+            expContainer.innerHTML = ''; // Önceki sonuçları temizle
+
+            questions.forEach((q, i) => {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                const expCard = document.createElement('div');
+                expCard.className = 'explanation-card';
+
+                let userAnswerText = "Boş Bırakıldı";
+                let isCorrect = false;
+
+                if (selected) {
+                    const selectedVal = parseInt(selected.value);
+                    userAnswerText = q.o[selectedVal];
+                    if (selectedVal === q.a) {
+                        score++;
+                        isCorrect = true;
+                        document.getElementById(`lbl-q${i}-o${selectedVal}`).style.backgroundColor = 'var(--correct-bg)';
+                        document.getElementById(`lbl-q${i}-o${selectedVal}`).style.borderColor = '#22c55e';
+                    } else {
+                        document.getElementById(`lbl-q${i}-o${selectedVal}`).style.backgroundColor = 'var(--wrong-bg)';
+                        document.getElementById(`lbl-q${i}-o${selectedVal}`).style.borderColor = '#dc2626';
+                        // Doğru olanı da göster
+                        document.getElementById(`lbl-q${i}-o${q.a}`).style.border = '2px solid #22c55e';
+                    }
+                }
+
+                expCard.innerHTML = `
+                    <h3>Soru ${i + 1} Çözümü <span class="${isCorrect ? 'status-correct' : 'status-wrong'}">(${isCorrect ? 'Doğru' : 'Yanlış/Boş'})</span></h3>
+                    <p><strong>Doğru Cevap:</strong> ${q.o[q.a]}</p>
+                    <p style="margin-top:0.5rem;"><strong>Neden?</strong> ${q.exp}</p>
+                `;
+                expContainer.appendChild(expCard);
+
+                // Disable all radio buttons after submit
+                document.querySelectorAll(`input[name="q${i}"]`).forEach(input => input.disabled = true);
+            });
+
+            document.getElementById('score-display').innerText = `Sınav Sonucu: ${score} / 15 Doğru`;
+            document.getElementById('results-section').style.display = 'block';
+            document.querySelector('.btn-submit').style.display = 'none';
+
+            // Scroll to results
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.onload = renderQuiz;
+    </script>
+</body>
+</html>
